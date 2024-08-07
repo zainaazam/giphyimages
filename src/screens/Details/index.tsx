@@ -2,20 +2,12 @@ import React from 'react';
 import Container from '../../components/Container';
 import Label from '../../components/Label';
 import Header from '../../components/Header';
-import {RouteProp} from '@react-navigation/native';
+import {RouteProp, useNavigation} from '@react-navigation/native';
 import {GLOBAL_THEME, RootStackParamList} from '../../lib/constants';
 import {useDispatch, useSelector} from 'react-redux';
-import {sharedRedux} from '../../lib/redux/actions/shared';
+import {Data, sharedRedux} from '../../lib/redux/actions/shared';
 import {NativeStackNavigationProp} from 'react-native-screens/lib/typescript/native-stack/types';
-import {
-  Image,
-  ImageBackground,
-  Linking,
-  Pressable,
-  ScrollView,
-  View,
-} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {Image, Linking, Pressable, ScrollView, View} from 'react-native';
 import {
   heightPercentageToDP,
   widthPercentageToDP,
@@ -23,6 +15,7 @@ import {
 import FastImage from 'react-native-fast-image';
 import {StyleSheet} from 'react-native';
 import {useTheme} from '../../Theme/ThemeContext';
+import {SharedElement} from 'react-navigation-shared-element';
 
 export type DetailsScreenRouteProp = RouteProp<RootStackParamList, 'Details'>;
 export type DetailsScreenNavigationProp = NativeStackNavigationProp<
@@ -35,9 +28,9 @@ const Details = ({
   navigation,
 }: {
   route: DetailsScreenRouteProp;
-  navigation: any;
+  navigation: DetailsScreenNavigationProp;
 }) => {
-  const {item} = route.params;
+  const {item, isHome} = route.params;
   const {favorites} = useSelector((state: {Shared: any}) => state.Shared);
   const isFavorite = favorites.find((favorite: any) => favorite.id === item.id);
   const dispatch = useDispatch();
@@ -48,13 +41,13 @@ const Details = ({
     (Number(item.images.original.height) / Number(item.images.original.width)) *
     width;
 
-  const handleFavorites = (item: any) => {
+  const handleFavorites = (item: Data) => {
     const isFavorite = favorites.find(
-      (favorite: any) => favorite.id === item.id,
+      (favorite: Data) => favorite.id === item.id,
     );
     if (isFavorite) {
       const filteredFavorites = favorites.filter(
-        (favorite: any) => favorite.id !== item.id,
+        (favorite: Data) => favorite.id !== item.id,
       );
       sharedRedux.setFavorites(filteredFavorites)(dispatch);
     } else {
@@ -108,7 +101,7 @@ const Details = ({
   );
 
   return (
-    <Container flex>
+    <Container flex details>
       <Header
         details
         title="Details"
@@ -117,10 +110,12 @@ const Details = ({
         handleFavorites={() => handleFavorites(item)}
       />
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        <FastImage
-          source={{uri: item.images.original.url}}
-          style={[styles.image, {height: height}]}
-        />
+        <SharedElement id={`item.${item.id}.image`}>
+          <FastImage
+            source={{uri: item.images.original.url}}
+            style={[styles.image, {height: height}]}
+          />
+        </SharedElement>
         <View style={styles.info}>
           {item?.user && (
             <View style={styles.user}>
@@ -166,11 +161,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: GLOBAL_THEME.container,
   },
   image: {
-    marginTop: heightPercentageToDP(3),
-    borderRadius: GLOBAL_THEME.radius.small,
+    marginTop: heightPercentageToDP(1),
+    borderRadius: GLOBAL_THEME.radius.medium,
   },
   info: {
     marginTop: heightPercentageToDP(2),
+    paddingBottom: heightPercentageToDP(4),
   },
   description: {
     marginTop: heightPercentageToDP(1),

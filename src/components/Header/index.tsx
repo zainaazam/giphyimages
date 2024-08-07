@@ -1,5 +1,5 @@
 import React from 'react';
-import {Image, Pressable, StyleSheet, View} from 'react-native';
+import {Pressable, StyleSheet, View} from 'react-native';
 import {
   heightPercentageToDP,
   widthPercentageToDP,
@@ -117,6 +117,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
+    paddingTop: heightPercentageToDP(1),
   },
   notifications: {
     padding: widthPercentageToDP(2.5),

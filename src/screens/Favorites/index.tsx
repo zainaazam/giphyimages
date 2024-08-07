@@ -8,10 +8,11 @@ import ImageItem from '../../components/ImageItem';
 import {StyleSheet} from 'react-native';
 import {GLOBAL_THEME, RootStackParamList} from '../../lib/constants';
 import {NativeStackNavigationProp} from 'react-native-screens/lib/typescript/native-stack/types';
+import {heightPercentageToDP} from 'react-native-responsive-screen';
 
 export type FavoritesScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
-  'Details'
+  'Favorites'
 >;
 
 function Favorites({navigation}: {navigation: FavoritesScreenNavigationProp}) {
@@ -30,18 +31,18 @@ function Favorites({navigation}: {navigation: FavoritesScreenNavigationProp}) {
           renderItem={() => (
             <View style={styles.masonryContainer}>
               <View>
-                {column1.map((item: Data) => (
+                {column1.map((item: Data, index: number) => (
                   <ImageItem
-                    key={item.id}
+                    key={index + item.id}
                     item={item}
                     navigation={navigation}
                   />
                 ))}
               </View>
               <View>
-                {column2.map((item: Data) => (
+                {column2.map((item: Data, index: number) => (
                   <ImageItem
-                    key={item.id}
+                    key={index + item.id}
                     item={item}
                     navigation={navigation}
                   />
@@ -62,7 +63,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: GLOBAL_THEME.container,
-    paddingTop: GLOBAL_THEME.container,
+    paddingTop: heightPercentageToDP(0.5),
   },
   masonryContainer: {
     flexDirection: 'row',

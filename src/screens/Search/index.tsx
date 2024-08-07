@@ -1,6 +1,12 @@
-import React from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import Container from '../../components/Container';
-import {Image, StyleSheet, TextInput, View} from 'react-native';
+import {
+  ActivityIndicator,
+  Image,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import {GLOBAL_THEME, RootStackParamList} from '../../lib/constants';
 import {useTheme} from '../../Theme/ThemeContext';
 import {
@@ -13,28 +19,35 @@ import {dataApi} from '../../lib/api/data';
 import {FlatList} from 'react-native-gesture-handler';
 import ImageItem from '../../components/ImageItem';
 import {NativeStackNavigationProp} from 'react-native-screens/lib/typescript/native-stack/types';
+import {Data} from '../../lib/redux/actions/shared';
 
 export type SearchScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
-  'Details'
+  'Search'
 >;
 
 function Search({navigation}: {navigation: SearchScreenNavigationProp}) {
   const {colors} = useTheme();
-  const [loading, setLoading] = React.useState(false);
-  const [search, setSearch] = React.useState('');
-  const [data, setData] = React.useState([]);
+  const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState('');
+  const [data, setData] = useState([]);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
-  const rehydrateSearchResults = React.useRef(
+  const rehydrateSearchResults = useRef(
     _.throttle(
-      async ({query}) => {
+      async ({query, page, reset = false}) => {
         try {
           setLoading(true);
-          const {data} = (await dataApi.search({
+          const {data: newData} = (await dataApi.search({
             query: query,
             size: 20,
+            page: page,
           })) as any;
-          setData(data);
+          if (newData.length === 0) {
+            setHasMore(false);
+          }
+          setData(prevData => (reset ? newData : [...prevData, ...newData]));
         } catch (e) {
           console.log(e, `Error`);
         } finally {
@@ -46,9 +59,18 @@ function Search({navigation}: {navigation: SearchScreenNavigationProp}) {
     ),
   );
 
-  React.useEffect(() => {
-    rehydrateSearchResults.current({query: search});
+  useEffect(() => {
+    rehydrateSearchResults.current({query: search, page: 0, reset: true});
+    setOffset(1);
+    setHasMore(true);
   }, [search]);
+
+  const handleLoadMore = useCallback(() => {
+    if (!loading && hasMore) {
+      rehydrateSearchResults.current({query: search, page: offset});
+      setOffset(prevOffset => prevOffset + 1);
+    }
+  }, [loading, hasMore, offset, search]);
 
   return (
     <Container flex>
@@ -62,22 +84,26 @@ function Search({navigation}: {navigation: SearchScreenNavigationProp}) {
           />
         </View>
         <View style={styles.data}>
-          {data.length > 0 ? (
+          {loading ? (
+            <ActivityIndicator size={'large'} color={colors.primary} />
+          ) : data.length > 0 ? (
             <FlatList
               data={data}
-              renderItem={({item}: any) => (
-                <ImageItem
-                  item={item}
-                  key={item.id}
-                  search
-                  navigation={navigation}
-                />
+              renderItem={({item}: {item: Data}) => (
+                <ImageItem item={item} search navigation={navigation} />
               )}
-              keyExtractor={(item: any, index) => item.id + index}
+              keyExtractor={(item: Data, index) => item.id + index}
               bounces={false}
               numColumns={2}
               showsVerticalScrollIndicator={false}
               showsHorizontalScrollIndicator={false}
+              onEndReached={handleLoadMore}
+              onEndReachedThreshold={0.5}
+              ListFooterComponent={
+                loading && hasMore ? (
+                  <ActivityIndicator size="large" color={colors.primary} />
+                ) : null
+              }
             />
           ) : (
             <Image
@@ -96,13 +122,15 @@ export default Search;
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: GLOBAL_THEME.container,
-    paddingTop: heightPercentageToDP(1),
+    paddingTop: heightPercentageToDP(2.5),
   },
   inputWrapper: {
     borderWidth: 1,
-    padding: widthPercentageToDP(3),
+    paddingHorizontal: widthPercentageToDP(3),
     borderRadius: GLOBAL_THEME.radius.medium,
     flexDirection: 'row',
+    alignItems: 'center',
+    height: heightPercentageToDP(5.5),
   },
   input: {
     marginLeft: widthPercentageToDP(2),

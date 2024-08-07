@@ -11,13 +11,20 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Octicons from 'react-native-vector-icons/Octicons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {Image} from 'react-native';
+import {Image, ImageSourcePropType} from 'react-native';
 
 interface Props {
   style?: any;
   size: number;
-  color?: any;
-  name: any;
+  color?: string;
+  name: string;
+}
+
+interface CustomProps {
+  style?: any;
+  size: number;
+  color?: string;
+  name: ImageSourcePropType;
 }
 
 const Icon = {
@@ -117,15 +124,7 @@ const Icon = {
       color={props.color}
     />
   ),
-  // ['RemixIcon']: (props: Props) => (
-  //   <RemixIcon
-  //     name={props.name}
-  //     style={props.style}
-  //     size={props.size}
-  //     color={props.color}
-  //   />
-  // ),
-  ['Custom']: (props: Props) => (
+  ['Custom']: (props: CustomProps) => (
     <Image
       source={props.name}
       resizeMode={'contain'}

@@ -8,16 +8,19 @@ import {useTheme} from '../../Theme/ThemeContext';
 import {truncate} from 'lodash';
 import {Data, sharedRedux} from '../../lib/redux/actions/shared';
 import {useDispatch, useSelector} from 'react-redux';
+import {SharedElement} from 'react-navigation-shared-element';
 
 const ImageItem = React.memo(
   ({
     item,
     navigation,
     search,
+    home,
   }: {
     item: Data;
     navigation?: any;
     search?: boolean;
+    home?: boolean;
   }) => {
     const {colors} = useTheme();
     const dispatch = useDispatch();
@@ -32,7 +35,7 @@ const ImageItem = React.memo(
     );
 
     const navigateToDetails = () => {
-      navigation.navigate('Details', {item: item});
+      navigation.navigate('Details', {item: item, isHome: home});
     };
 
     const handleFavorites = (item: Data) => {
@@ -52,44 +55,46 @@ const ImageItem = React.memo(
     return (
       <View style={styles.container} key={item.id}>
         <Pressable onPress={navigateToDetails}>
-          <ImageBackground
-            imageStyle={[
-              styles.backgroundImage,
-              {height: search ? widthPercentageToDP(45) : height},
-            ]}
-            source={{uri: item.images.downsized.url}}
-            style={[
-              styles.image,
-              {height: search ? widthPercentageToDP(45) : height},
-            ]}>
-            <View style={styles.favorite}>
-              <Pressable onPress={() => handleFavorites(item)}>
-                <Icon.Octicons
-                  name={isFavorite ? 'heart-fill' : 'heart'}
-                  size={22}
-                  color={colors.primary}
-                />
-              </Pressable>
-            </View>
+          <SharedElement id={`item.${item.id}.image`}>
             <ImageBackground
-              imageStyle={styles.shadowImage}
-              style={styles.shadow}
-              source={require('../../assets/images/shadow.png')}>
-              <View style={styles.info}>
-                <Label size="caption" weight="bold" color={colors.white}>
-                  {item.title}
-                </Label>
-                {item?.user?.description && (
-                  <Label size="caption2" color={colors.background}>
-                    {truncate(item?.user?.description, {
-                      omission: '..',
-                      length: 24,
-                    })}
-                  </Label>
-                )}
+              imageStyle={[
+                styles.backgroundImage,
+                {height: search ? widthPercentageToDP(45) : height},
+              ]}
+              source={{uri: item.images.downsized.url}}
+              style={[
+                styles.image,
+                {height: search ? widthPercentageToDP(45) : height},
+              ]}>
+              <View style={styles.favorite}>
+                <Pressable onPress={() => handleFavorites(item)}>
+                  <Icon.Octicons
+                    name={isFavorite ? 'heart-fill' : 'heart'}
+                    size={22}
+                    color={colors.primary}
+                  />
+                </Pressable>
               </View>
+              <ImageBackground
+                imageStyle={styles.shadowImage}
+                style={styles.shadow}
+                source={require('../../assets/images/shadow.png')}>
+                <View style={styles.info}>
+                  <Label size="caption" weight="bold" color={colors.white}>
+                    {item.title}
+                  </Label>
+                  {item?.user?.description && (
+                    <Label size="caption2" color={colors.background}>
+                      {truncate(item?.user?.description, {
+                        omission: '..',
+                        length: 24,
+                      })}
+                    </Label>
+                  )}
+                </View>
+              </ImageBackground>
             </ImageBackground>
-          </ImageBackground>
+          </SharedElement>
         </Pressable>
       </View>
     );

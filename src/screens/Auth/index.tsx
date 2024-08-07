@@ -35,8 +35,10 @@ function Login() {
     validationSchema: validationSchema,
     onSubmit: values => {
       setLoading(true);
-      userRedux.setIsLoggedIn(true)(dispatch);
-      userRedux.setEmail(values.email.toLowerCase())(dispatch);
+      setTimeout(() => {
+        userRedux.setIsLoggedIn(true)(dispatch);
+        userRedux.setEmail(values.email.toLowerCase())(dispatch);
+      }, 1000);
     },
   });
 
@@ -107,5 +109,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     paddingHorizontal: GLOBAL_THEME.container,
+    paddingBottom: heightPercentageToDP(2),
   },
 });

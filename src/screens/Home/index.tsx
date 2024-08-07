@@ -15,14 +15,17 @@ import {Data} from '../../lib/redux/actions/shared';
 import {useTheme} from '../../Theme/ThemeContext';
 import {GLOBAL_THEME, RootStackParamList} from '../../lib/constants';
 import {NativeStackNavigationProp} from 'react-native-screens/lib/typescript/native-stack/types';
+import {heightPercentageToDP} from 'react-native-responsive-screen';
+import {SharedElement} from 'react-navigation-shared-element';
 
 export type HomeScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
-  'Details'
+  'Home'
 >;
 
 function Home({navigation}: {navigation: HomeScreenNavigationProp}) {
   const [loading, setLoading] = useState(false);
+  const [paginationLoading, setPaginationLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [column1, setColumn1] = useState<Data[]>([]);
   const [column2, setColumn2] = useState<Data[]>([]);
@@ -40,13 +43,9 @@ function Home({navigation}: {navigation: HomeScreenNavigationProp}) {
     setColumn2(column2Data);
   }, []);
 
-  //   const renderItem = ({item}: any) => {
-  //     return <ImageItem item={item} />;
-  //   };
-
   const fetchData = async (reset = false) => {
-    if (loading || error) return;
-    setLoading(true);
+    if (paginationLoading || error) return;
+    setPaginationLoading(true);
     setError(null);
     try {
       const {data: newData} = (await GLOBAL_DATA_SERVICE.getHomeData(
@@ -58,6 +57,7 @@ function Home({navigation}: {navigation: HomeScreenNavigationProp}) {
         setColumn1([]);
         setColumn2([]);
       }
+
       setData(prevData => (reset ? newData : [...prevData, ...newData]));
       setOffset(prevOffset => (reset ? 20 : prevOffset + 20));
       loadInitialData(reset ? newData : [...data, ...newData]);
@@ -65,18 +65,22 @@ function Home({navigation}: {navigation: HomeScreenNavigationProp}) {
       console.error('Error fetching data:', error);
       setError('Failed to load data. Please try again later.');
     } finally {
-      setLoading(false);
+      setPaginationLoading(false);
     }
   };
 
   useEffect(() => {
     if (initialData.length > 0) {
+      setLoading(true);
       loadInitialData(initialData);
       setData(initialData);
+      setTimeout(() => {
+        setLoading(false);
+      }, 2000);
     } else {
       fetchData(true);
     }
-  }, [initialData]);
+  }, []);
 
   return (
     <Container flex>
@@ -87,40 +91,52 @@ function Home({navigation}: {navigation: HomeScreenNavigationProp}) {
             <Text style={styles.errorText}>{error}</Text>
           </View>
         )}
-        <FlatList
-          showsVerticalScrollIndicator={false}
-          data={[{key: '1'}]}
-          renderItem={() => (
-            <View style={styles.masonryContainer}>
-              <View>
-                {column1.map((item: Data, index: number) => (
-                  <ImageItem
-                    key={index + item.id}
-                    item={item}
-                    navigation={navigation}
-                  />
-                ))}
+        {loading ? (
+          <ActivityIndicator
+            size={'large'}
+            color={colors.primary}
+            style={{
+              marginTop: heightPercentageToDP(4),
+            }}
+          />
+        ) : (
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            data={[{key: '1'}]}
+            renderItem={() => (
+              <View style={styles.masonryContainer}>
+                <View>
+                  {column1.map((item: Data, index: number) => (
+                    <ImageItem
+                      key={index + item.id}
+                      item={item}
+                      navigation={navigation}
+                      home
+                    />
+                  ))}
+                </View>
+                <View>
+                  {column2.map((item: Data, index: number) => (
+                    <ImageItem
+                      key={index + item.id}
+                      item={item}
+                      navigation={navigation}
+                      home
+                    />
+                  ))}
+                </View>
               </View>
-              <View>
-                {column2.map((item: Data, index: number) => (
-                  <ImageItem
-                    key={index + item.id}
-                    item={item}
-                    navigation={navigation}
-                  />
-                ))}
-              </View>
-            </View>
-          )}
-          keyExtractor={item => item.key}
-          onEndReached={() => fetchData(false)}
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={
-            loading ? (
-              <ActivityIndicator size="large" color={colors.primary} />
-            ) : null
-          }
-        />
+            )}
+            keyExtractor={item => item.key}
+            onEndReached={() => fetchData(false)}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={
+              paginationLoading ? (
+                <ActivityIndicator size="large" color={colors.primary} />
+              ) : null
+            }
+          />
+        )}
       </View>
     </Container>
   );

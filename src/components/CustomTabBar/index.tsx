@@ -1,14 +1,10 @@
 import {BottomTabBarProps} from '@react-navigation/bottom-tabs';
 import React from 'react';
-import {ImageBackground, Platform, View, ViewBase} from 'react-native';
+import {Platform, View} from 'react-native';
 import TabBarComponent from '../TabBarComponent';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {
-  heightPercentageToDP,
-  widthPercentageToDP,
-} from 'react-native-responsive-screen';
+import {heightPercentageToDP} from 'react-native-responsive-screen';
 import {useTheme} from '../../Theme/ThemeContext';
-import Label from '../Label';
 
 const CustomTabBar = (props: BottomTabBarProps) => {
   const {state, descriptors, navigation} = props;
@@ -20,8 +16,8 @@ const CustomTabBar = (props: BottomTabBarProps) => {
       style={{
         flexDirection: 'row',
         justifyContent: 'space-around',
-        paddingBottom: bottom + heightPercentageToDP(1),
-        paddingVertical: heightPercentageToDP(2.5),
+        paddingBottom: bottom + heightPercentageToDP(2),
+        paddingVertical: heightPercentageToDP(2),
         alignItems: 'center',
         shadowColor: colors.black,
         shadowOffset: {

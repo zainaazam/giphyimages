@@ -22,5 +22,5 @@ export type RootStackParamList = {
   Search: undefined;
   Favorites: undefined;
   Profile: undefined;
-  Details: {item: Data};
+  Details: {item: Data; isHome?: boolean};
 };

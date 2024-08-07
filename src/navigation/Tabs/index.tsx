@@ -1,11 +1,21 @@
+import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {useTheme} from '../../Theme/ThemeContext';
 import CustomTabBar from '../../components/CustomTabBar';
-import Home from '../../screens/Home';
 import Icon from '../../components/Icon';
-import Search from '../../screens/Search';
-import Favorites from '../../screens/Favorites';
 import Profile from '../../screens/Profile';
+import HomeStack from '../HomeStack';
+import FavoritesStack from '../FavoritesStack';
+import SearchStack from '../SearchStack';
+
+const homeIcon = require('../../assets/icons/home.png');
+const homeFilledIcon = require('../../assets/icons/home-filled.png');
+const searchIcon = require('../../assets/icons/search.png');
+const searchFilledIcon = require('../../assets/icons/search-filled.png');
+const favoritesIcon = require('../../assets/icons/favorites.png');
+const favoritesFilledIcon = require('../../assets/icons/favorites-filled.png');
+const profileIcon = require('../../assets/icons/profile.png');
+const profileFilledIcon = require('../../assets/icons/profile-filled.png');
 
 const Tab = createBottomTabNavigator();
 
@@ -18,16 +28,12 @@ const Tabs = () => {
       }}
       tabBar={props => <CustomTabBar {...props} />}>
       <Tab.Screen
-        name="Home"
-        component={Home}
+        name="HomeStack"
+        component={HomeStack}
         options={{
           tabBarIcon: ({focused}) => (
             <Icon.Custom
-              name={
-                focused
-                  ? require(`../../assets/icons/home-filled.png`)
-                  : require(`../../assets/icons/home.png`)
-              }
+              name={focused ? homeFilledIcon : homeIcon}
               size={22}
               color={colors.black}
             />
@@ -35,16 +41,12 @@ const Tabs = () => {
         }}
       />
       <Tab.Screen
-        name="Search"
-        component={Search}
+        name="SearchStack"
+        component={SearchStack}
         options={{
           tabBarIcon: ({focused}) => (
             <Icon.Custom
-              name={
-                focused
-                  ? require(`../../assets/icons/search-filled.png`)
-                  : require(`../../assets/icons/search.png`)
-              }
+              name={focused ? searchFilledIcon : searchIcon}
               size={22}
               color={colors.black}
             />
@@ -52,16 +54,12 @@ const Tabs = () => {
         }}
       />
       <Tab.Screen
-        name="Favorites"
-        component={Favorites}
+        name="FavoritesStack"
+        component={FavoritesStack}
         options={{
           tabBarIcon: ({focused}) => (
             <Icon.Custom
-              name={
-                focused
-                  ? require(`../../assets/icons/favorites-filled.png`)
-                  : require(`../../assets/icons/favorites.png`)
-              }
+              name={focused ? favoritesFilledIcon : favoritesIcon}
               size={22}
               color={colors.black}
             />
@@ -74,11 +72,7 @@ const Tabs = () => {
         options={{
           tabBarIcon: ({focused}) => (
             <Icon.Custom
-              name={
-                focused
-                  ? require(`../../assets/icons/profile-filled.png`)
-                  : require(`../../assets/icons/profile.png`)
-              }
+              name={focused ? profileFilledIcon : profileIcon}
               size={22}
               color={colors.black}
             />

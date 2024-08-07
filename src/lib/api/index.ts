@@ -18,7 +18,6 @@ export async function getBaseUrl() {
 }
 
 const onSuccess = function (response: AxiosResponse) {
-  // console.warn('Request Successful!', response);
   return response.data;
 };
 

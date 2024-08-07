@@ -1,11 +1,25 @@
 import React from 'react';
 import {Pressable, StyleSheet, TextInput, View} from 'react-native';
 import {useTheme} from '../../Theme/ThemeContext';
-import {widthPercentageToDP} from 'react-native-responsive-screen';
+import {
+  heightPercentageToDP,
+  widthPercentageToDP,
+} from 'react-native-responsive-screen';
 import Label from '../Label';
 import Icon from '../Icon';
 
-function Input(props: any) {
+interface Props {
+  style?: any;
+  placeholder: string;
+  value: string;
+  onChangeText: (text: string) => void;
+  onBlur: (e: any) => void;
+  password?: boolean;
+  isError?: boolean | string;
+  error?: string;
+}
+
+function Input(props: Props) {
   const {colors} = useTheme();
 
   const [showPassword, setShowPassword] = React.useState(false);
@@ -61,10 +75,12 @@ export default Input;
 
 const styles = StyleSheet.create({
   container: {
-    padding: widthPercentageToDP(5),
     borderRadius: widthPercentageToDP(2),
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    height: heightPercentageToDP(7),
+    paddingHorizontal: widthPercentageToDP(3),
+    alignItems: 'center',
   },
 });
